@@ -1,0 +1,57 @@
+openapi: "3.0.2"
+info:
+  title: "Vert.x Web API contract and service example"
+  description: "Lorem ipsum..."
+  version: "1.0"
+  termsOfService: "https://whatever.org/terms"
+  contact:
+    name: "Whoever"
+    url: "https://whatever.org/contact"
+    email: "some_email@whatever.com"
+  license:
+    name: "Lorem ipsum..."
+    url: "https://openweathermap.org/license"
+servers:
+  - url: "http://localhost:8080/api/v1.0"
+    description: "Testing"
+paths:
+  /json:
+    post:
+      tags:
+      - Upload PDF document
+      summary: "Lorem ipsum..."
+      description: "Lorem ipsum..."
+      operationId: uploadJSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: email
+                to:
+                  type: string
+                  format: email
+              required:
+                - from
+                - to
+      responses:
+        201:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    format: email
+                  to:
+                    type: string
+                    format: email
+                required:
+                  - from
+                  - to

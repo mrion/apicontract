@@ -9,10 +9,12 @@ version = '1.0.0-SNAPSHOT'
 
 repositories {
   mavenCentral()
+  jcenter()
 }
 
 ext {
   vertxVersion = '3.7.0'
+  logbackVersion = '1.2.3'
   junitJupiterEngineVersion = '5.4.0'
 }
 
@@ -27,9 +29,13 @@ def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
 dependencies {
+  compile "io.vertx:vertx-web-api-contract:$vertxVersion"
+
   implementation "io.vertx:vertx-core:$vertxVersion"
   implementation "io.vertx:vertx-web:$vertxVersion"
+  implementation "ch.qos.logback:logback-classic:$logbackVersion"
 
+  testImplementation "io.vertx:vertx-web-client:$vertxVersion"
   testImplementation "io.vertx:vertx-junit5:$vertxVersion"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
   testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterEngineVersion"
