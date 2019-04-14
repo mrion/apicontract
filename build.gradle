@@ -30,6 +30,8 @@ def doOnChange = './gradlew classes'
 
 dependencies {
   compile "io.vertx:vertx-web-api-contract:$vertxVersion"
+  compile "io.vertx:vertx-codegen:$vertxVersion:processor"
+  compile "io.vertx:vertx-web-api-service:$vertxVersion"
 
   implementation "io.vertx:vertx-core:$vertxVersion"
   implementation "io.vertx:vertx-web:$vertxVersion"

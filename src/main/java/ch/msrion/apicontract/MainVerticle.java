@@ -3,19 +3,20 @@ package ch.msrion.apicontract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.msrion.apicontract.http.HttpServerVerticle;
+import ch.msrion.apicontract.service.TestService;
+import ch.msrion.apicontract.service.impl.TestServiceImpl;
 import io.netty.handler.codec.http.HttpResponseStatus;
-
-import io.vertx.core.Vertx;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
-import io.vertx.core.http.HttpServer;
-import io.vertx.ext.web.Router;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.api.RequestParameter;
 import io.vertx.ext.web.api.RequestParameters;
-import io.vertx.ext.web.api.contract.RouterFactoryOptions;
-import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
+import io.vertx.serviceproxy.ServiceBinder;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -27,39 +28,17 @@ public class MainVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
     LOGGER.info("Starting up application...");
 
-    HttpServer server = vertx.createHttpServer();
-    Router router = Router.router(vertx);
+    TestService service = new TestServiceImpl();
+    final ServiceBinder serviceBinder = new ServiceBinder(vertx).setAddress("testService");
+    MessageConsumer<JsonObject> serviceConsumer = serviceBinder.register(TestService.class, service);
 
-    router.route().handler(BodyHandler.create().setDeleteUploadedFilesOnEnd(false).setUploadsDirectory("file-uploads").setMergeFormAttributes(false));
-
-    OpenAPI3RouterFactory.create(vertx, "src/main/resources/openapi.yml", ar -> {
+    vertx.deployVerticle(HttpServerVerticle.class, new DeploymentOptions().setInstances(2), ar -> {
       if (ar.succeeded()) {
-        // Spec loaded with success
-        OpenAPI3RouterFactory routerFactory = ar.result();
-        RouterFactoryOptions options = new RouterFactoryOptions()
-          .setMountNotImplementedHandler(true);
-        routerFactory.setOptions(options);
-        routerFactory.addHandlerByOperationId("uploadJSON", this::uploadJSON);
-
-        //routerFactory.mountServicesFromExtensions();
-        router.mountSubRouter("/api", routerFactory.getRouter());
-        
-        int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
-
-        LOGGER.info("Starting up HTTP server on port " + portNumber + "...");
-
-        server.requestHandler(router).listen(portNumber, ar2 -> {
-          if (ar2.succeeded()) {
-            LOGGER.info("HTTP server running on port " + portNumber + ".");
-            startFuture.complete();
-          } else {
-            LOGGER.error("Could not start a HTTP server", ar2.cause());
-            startFuture.fail(ar2.cause());
-          }
-        });
+        LOGGER.info("HttpServerVerticle deployed sucessfully.");
+        startFuture.complete();
       } else {
-        // Something went wrong during router factory initialization
-        Throwable exception = ar.cause();
+        LOGGER.error("HttpServerVerticle deployment failed!", ar.cause());
+        startFuture.fail(ar.cause());
       }
     });
   }
