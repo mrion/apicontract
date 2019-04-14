@@ -57,4 +57,4 @@ paths:
                   - to
       x-vertx-event-bus:
         address: testService
-        method: uploadJSON
+        method: uploadJson

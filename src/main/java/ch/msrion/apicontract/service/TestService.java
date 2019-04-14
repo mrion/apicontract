@@ -9,5 +9,5 @@ import io.vertx.ext.web.api.generator.WebApiServiceGen;
 
 @WebApiServiceGen
 public interface TestService {
-  void uploadJSON(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler);
+  public void uploadJson(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler);
 }

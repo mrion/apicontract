@@ -18,7 +18,7 @@ public class TestServiceImpl implements TestService {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestServiceImpl.class);
 
   @Override
-  public void uploadJSON(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler) {
+  public void uploadJson(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler) {
     LOGGER.info("Received JSON object...");
     if ( body == null) {
       LOGGER.info("Body is null");
