@@ -186,3 +186,6 @@ nbdist/
 
 # Vertx gradle starter
 /build
+
+# Generated files
+src/main/java/ch/msrion/apicontract/service/TestServiceVertxProxyHandler.java
