@@ -52,7 +52,7 @@ public class TestMainVerticle {
       .put("to", "test@example.com"), ar -> {
       if (ar.succeeded()) {
         HttpResponse<Buffer> response = ar.result();
-        assertTrue(response.statusCode() == 201);
+        assertTrue(response.statusCode() == HttpResponseStatus.CREATED.code());
         assertTrue(response.body().toString().contains("id"));
         testContext.completeNow();
       }

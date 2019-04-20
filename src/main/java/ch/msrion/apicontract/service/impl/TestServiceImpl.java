@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.msrion.apicontract.service.TestService;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.api.OperationRequest;
 import io.vertx.ext.web.api.OperationResponse;
@@ -25,10 +25,11 @@ public class TestServiceImpl implements TestService {
     }
     else {
       LOGGER.info(body.toString());
+      body.put("id", "1234567890");
     }
     resultHandler.handle(
       Future.succeededFuture(
-        OperationResponse.completedWithPlainText(Buffer.buffer("Hello world!"))
+        new OperationResponse().setPayload(body.toBuffer()).setStatusCode(HttpResponseStatus.CREATED.code())
       )
     );      
   }
