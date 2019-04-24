@@ -47,9 +47,11 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterEngineVersion"
 }
 
+/*
 compileJava {
     options.annotationProcessorGeneratedSourcesDirectory = file("src/main/java")
 }
+*/
 
 shadowJar {
   classifier = 'fat'

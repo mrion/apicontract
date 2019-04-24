@@ -10,4 +10,5 @@ import io.vertx.ext.web.api.generator.WebApiServiceGen;
 @WebApiServiceGen
 public interface TestService {
   public void uploadJson(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler);
+  public void uploadPdf(JsonObject body, OperationRequest context, Handler<AsyncResult<OperationResponse>> resultHandler);
 }

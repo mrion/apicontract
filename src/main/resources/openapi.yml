@@ -18,7 +18,7 @@ paths:
   /json:
     post:
       tags:
-      - Upload PDF document
+      - Upload JSON document
       summary: "Lorem ipsum..."
       description: "Lorem ipsum..."
       operationId: uploadJSON
@@ -58,3 +58,49 @@ paths:
       x-vertx-event-bus:
         address: testService
         method: uploadJson
+  /pdf:
+    post:
+      tags:
+      - Create new PDF document
+      summary: "Lorem ipsum..."
+      description: "Lorem ipsum..."
+      operationId: uploadPdf
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: "application/pdf"
+                headers:
+                  Content-Disposition:
+                    description: "Lorem ipsum"
+                    schema:
+                      type: string
+                      enum: ["form-data"]
+                  filename:
+                    description: "Lorem ipsum"
+                    schema:
+                      type: string
+      responses:
+        201:
+          description: Doc created
+          content:
+            application/json:
+              schema:
+                title: Sample
+                type: object
+                properties:
+                  placeholder:
+                    type: string
+                    description: Placeholder description
+      x-vertx-event-bus:
+        address: testService
+        method: uploadPdf
+

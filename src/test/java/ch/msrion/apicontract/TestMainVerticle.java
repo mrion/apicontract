@@ -10,23 +10,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.vertx.reactivex.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.Timeout;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import io.vertx.reactivex.ext.web.multipart.MultipartForm;
 
 @ExtendWith(VertxExtension.class)
 public class TestMainVerticle {
-
+  
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
     vertx.deployVerticle(new MainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
   }
-
+  
   @Test
   @DisplayName("Should start a Web Server on port 8080")
   @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
@@ -41,15 +42,38 @@ public class TestMainVerticle {
   }
 
   @Test
-  @DisplayName("Create JSON object")
+  @DisplayName("Submit JSON object")
   @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
-  void create_json_object(Vertx vertx, VertxTestContext testContext) throws Throwable {
+  void submit_json_object(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
     client.post(8080, "localhost", "/api/json")
     .sendJsonObject(new JsonObject()
       .put("from", "test@test.com")
       .put("to", "test@example.com"), ar -> {
+      if (ar.succeeded()) {
+        HttpResponse<Buffer> response = ar.result();
+        assertTrue(response.statusCode() == HttpResponseStatus.CREATED.code());
+        assertTrue(response.body().toString().contains("id"));
+        testContext.completeNow();
+      }
+      else {
+        testContext.failNow(ar.cause());
+      }
+    });
+  }
+
+  @Test
+  @DisplayName("Submit PDF file")
+  @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
+  void submit_pdf_file(Vertx vertx, VertxTestContext testContext) throws Throwable {
+    WebClient client = WebClient.create(vertx);
+
+    MultipartForm form = MultipartForm.create();
+    form.binaryFileUpload("file", "test.pdf", "src/test/resources/test.pdf", "application/pdf");
+
+    client.post(8080, "localhost", "/api/pdf")
+    .sendMultipartForm(form, ar -> {
       if (ar.succeeded()) {
         HttpResponse<Buffer> response = ar.result();
         assertTrue(response.statusCode() == HttpResponseStatus.CREATED.code());

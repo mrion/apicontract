@@ -1,12 +1,19 @@
 package ch.msrion.apicontract.http;
 
+import java.util.Base64;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.contract.RouterFactoryOptions;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -34,6 +41,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         RouterFactoryOptions options = new RouterFactoryOptions()
           .setMountNotImplementedHandler(true);
         routerFactory.setOptions(options);
+        routerFactory.setExtraOperationContextPayloadMapper(this::extraOperationContextPayloadMapper);
         //routerFactory.addHandlerByOperationId("uploadJSON", this::uploadJSON);
         routerFactory.mountServicesFromExtensions();
 
@@ -58,4 +66,37 @@ public class HttpServerVerticle extends AbstractVerticle {
       }
     });
   }
+
+  public JsonObject extraOperationContextPayloadMapper(RoutingContext context) {
+    JsonObject extra = new JsonObject();
+    if (context.request().path().equals("/api/pdf") && (context.request().method().compareTo(HttpMethod.POST) == 0)) {
+      LOGGER.info("PDF uopload detected");
+      for (FileUpload fileUpload : context.fileUploads()) {
+        Buffer buf = vertx.fileSystem().readFileBlocking(fileUpload.uploadedFileName());
+        extra.put("contentType", fileUpload.contentType());
+        extra.put("originalFileName", fileUpload.fileName());
+        extra.put("fileSize", fileUpload.size());
+        extra.put("payload", buf.getBytes());
+        /*
+        vertx.fileSystem().readFile(fileUpload.uploadedFileName(), fileRead -> {
+          if (fileRead.succeeded()) {
+            //extra.put("payload", new JsonObject(fileRead.result()));
+            
+          } else {
+              // throw error?
+              //System.err.println("Oh oh ..." + result.cause());
+          }
+        });
+        */
+      }  
+    }
+    LOGGER.info("Extra upload information set");
+    return extra;
+  }
+
+
+
+
+
+
 }
